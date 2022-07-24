@@ -61,7 +61,7 @@
 /////////////////////////////
 const char ascii_tab[256] = EBCDIC_STRING ;
 //    char other_tab[256];
-char * pEBCDIC = 0;
+//ar * pEBCDIC = 0;
 void printHex(FILE * pFile,void *buff, long length)
 {
   char sepchars[2] = {' ',' '};

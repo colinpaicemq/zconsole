@@ -1,5 +1,4 @@
 //  C header file for the z/OS CIB control block used by QEDIT
-
 //MIT License
 //
 //Copyright (c) 2022 Colin Paice
@@ -42,6 +41,7 @@
       char data[1]  ;    // Actual data returned
   };
   //  Mapping of the CIB extension
+  //  Located by aaddress(CIB) + cobxoff
   typedef struct tagCIBX CIBX  ;
   struct tagCIBX {
      char reserver00[4]; // pointer to utoken reserved storage

@@ -24,6 +24,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 //
+#define _OPEN_THREADS 2
 #include <sys/__messag.h>
 #include <errno.h>
 #include <string.h>
@@ -56,20 +57,23 @@ static char __version__[] = "0.01.0";  //  Initial
 static PyObject *ErrorObj;
 
 static char console_doc[] =
-  "z Console interface for pyhone.   console.put and console.get ";
-
-#include <consoleinitkill.h>
-#include <consoleget.h>
+  "z Console interface for Python. put and callback";
+#include <consoleacb.h>
 #include <consoleput.h>
 #include <consoleconsole2.h>
 #include <taskinfo.h>
 static struct PyMethodDef console_methods[] = {
-    {"init", (PyCFunction)console_init,METH_KEYWORDS | METH_VARARGS, console_init_doc},
-    {"taskinfo", (PyCFunction)console_taskinfo,METH_KEYWORDS | METH_VARARGS, "task info, ASCB,TCB etc" },
+    {"cancel", (PyCFunction)console_cancel,METH_KEYWORDS | METH_VARARGS, console_cancel_doc},
+    {"acb", (PyCFunction)console_acb,METH_KEYWORDS | METH_VARARGS, console_acb_doc},
+#ifdef no
     {"kill", (PyCFunction)console_kill,METH_KEYWORDS | METH_VARARGS, console_kill_doc},
-    {"console2", (PyCFunction)console_console2,METH_KEYWORDS | METH_VARARGS, console_put_doc},
-    {"put", (PyCFunction)console_put,METH_KEYWORDS | METH_VARARGS, console_put_doc},
+    {"acancel", (PyCFunction)console_acancel,METH_KEYWORDS | METH_VARARGS, console_acancel_doc},
+    {"init", (PyCFunction)console_init,METH_KEYWORDS | METH_VARARGS, console_init_doc},
     {"get", (PyCFunction)console_get,METH_KEYWORDS | METH_VARARGS, console_get_doc},
+#endif
+    {"console2", (PyCFunction)console_console2,METH_KEYWORDS | METH_VARARGS, console_put_doc},
+    {"taskinfo", (PyCFunction)console_taskinfo,METH_KEYWORDS | METH_VARARGS, "task info, ASCB,TCB etc" },
+    {"put", (PyCFunction)console_put,METH_KEYWORDS | METH_VARARGS, console_put_doc},
     {NULL, (PyCFunction)NULL, 0, NULL}        /* sentinel */
     };
   // -----------------------------------------
@@ -89,8 +93,8 @@ PyMODINIT_FUNC PyInit_zconsole(void) {
 
   /* Add some symbolic constants to the module */
   d = PyModule_GetDict(m);
-  ErrorObj = PyErr_NewException("console.error", NULL, NULL);
-  PyDict_SetItemString(d, "console.error", ErrorObj);
+//ErrorObj = PyErr_NewException("console.error", NULL, NULL);
+//PyDict_SetItemString(d, "console.error", ErrorObj);
 
   PyDict_SetItemString(d, "__doc__", Py23Text_FromString(console_doc));
   PyDict_SetItemString(d,"__version__", Py23Text_FromString(__version__));

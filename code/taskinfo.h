@@ -37,6 +37,7 @@ static PyObject *console_taskinfo(PyObject *self, PyObject *args, PyObject *keyw
   //
   // get the ASCB
   //
+  char cASCB[11]; // 0x012345678n
   long pASCB;
   __asm__(" LLGT 1,548 pASCB \n"
           " STG  1,%[p1] pASCB    \n"
@@ -44,9 +45,11 @@ static PyObject *console_taskinfo(PyObject *self, PyObject *args, PyObject *keyw
   :
   : "r1","r2"
   );
+  sprintf(&cASCB[0],"0x%8.8x\0",pASCB);
   //
   // get the TCB
   //
+  char cTCB[11]; // 0x012345678n
   long pTCB;
   __asm__(" LLGT 1,540 pTCB  \n"
           " STG  1,%[p1] pTCB     \n"
@@ -54,26 +57,30 @@ static PyObject *console_taskinfo(PyObject *self, PyObject *args, PyObject *keyw
   :
   : "r1","r2"
   );
+  sprintf(&cTCB[0],"0x%8.8x\0",pTCB);
+  //
+  //  JOBNAME
+  //
   //   the name is either in offset 172 for jobs or 176 to stc
+  char jobName[9];
   char * pJobName;
   __asm__(" LLGT 1,548 pASCB \n"
-          " LLGT 2,172(1) p Jobname \n"
-          " LTGR 2,2   0 for started task \n"
+          " SGR  2,2   0 for started task \n"
+          " L    2,172(1) p Jobname \n"
+          " LTR  2,2   0 for started task \n"
           " JNZ  GOBACK \n"
-          " LLGT 2,176(1) p started task \n"
+          " L    2,176(1) p started task \n"
           "GOBACK  DS 0H                     \n"
           " STG 2,%[pJobName] save p jobname \n"
   : [pJobName] "=m"(pJobName)
   :
   : "r1","r2"
   );
-  #ifdef fix
-  pJobName = "COLINJOB";
-  if ( pJobName != 0)
-  printf("pJOBANME  %8.8s\n",pJobName);
-  else
-  printf("pJOBANME  was 0 \n!    ");
-  #endif
+  // move data to our buffer, and convert to ASCII
+  memcpy(&jobName[0],pJobName,8);
+  jobName[8]=0; // null terminator
+  __e2a_l(&(jobName[0]),8);
+
   //
   //  ttime
   //
@@ -86,10 +93,18 @@ static PyObject *console_taskinfo(PyObject *self, PyObject *args, PyObject *keyw
   : "r1","r2"
   );
   ttimer = ttimer/1024;  //  because the bottom 12 bits are not used
-  rv = Py_BuildValue("{s:i,s:i,s:l}",
-            "ascb",  pASCB,
-            "tcb",   pTCB,
+  // do not convert to ASCII as already in ASCII
+
+  rv = Py_BuildValue("{s:s,s:s,s:s,s:l}",
+            "jobname",jobName,
+            "ascb",  cASCB,
+            "tcb",   cTCB,
             "tcbttime", ttimer);
   if (rv == NULL)
+   {
+    PyErr_Print();
+    PyErr_SetString(PyExc_RuntimeError,"Py_BuildValue in taskinfo");
+    printf(" Py_BuildValue error in taskinfo\n");
+   }
   return rv;
 }
