@@ -1,13 +1,22 @@
 # zconsole
 An interface to intercept operator commands START, STOP,MODFY for Python programs on z/OS, and to write to the operator console
 
+## To install it
+1. ftp zconsole.pax.bin to z/OS in binary, to a directory  in the PYTHONPATH environment variable.
+1. pax -rvf zconsole.pax.bin
+
+This will produce
+1. zconsole.so - the load module
+1. console.py - a class for running the code
+1. cons3.py - an example python script for running as a started task which demonstrates all of the functions.
+
 ## Simple Write to the console
 
     import zconsole as zconsole 
     zconsole.put("This gets written to the z/OS console") 
     zconsole.put("This gets written to the z/OS console using descr and route",desc=11,route=2)
     
-You can use the C run time _console2 but this wilk prefix your message with BPX.. if the userid is not authrorised to BPX.CONSOLE and 
+You can use the C run time _console2 but this will prefix your message with BPX... if the userid is not authrorised to BPX.CONSOLE and 
 is not a super userid with uid(0).
 
     zconsole.console2("This gets written to the z/OS console") 
